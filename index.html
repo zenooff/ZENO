@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>ZENO</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      font-family: Arial, Helvetica, sans-serif;
+      background: black;
+      color: white;
+    }
+
+    canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 0;
+    }
+
+    .center-text {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 80px;
+      letter-spacing: 10px;
+      z-index: 2;
+      text-align: center;
+    }
+
+    .page {
+      display: none;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 2;
+      background: rgba(0,0,0,0.7);
+      padding: 40px;
+      border-radius: 10px;
+      text-align: center;
+    }
+
+    input {
+      display: block;
+      margin: 10px auto;
+      padding: 10px;
+      width: 200px;
+      border-radius: 5px;
+      border: none;
+    }
+
+    button {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      background-color: white;
+      color: black;
+      font-weight: bold;
+      margin-top: 10px;
+    }
+
+    a {
+      display: block;
+      margin-top: 10px;
+      color: #00f;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <canvas id="stars"></canvas>
+
+  <!-- Page d'accueil -->
+  <div id="homePage" class="center-text">
+    ZENO
+    <br><br>
+    <button onclick="showPage('loginPage')">Connexion</button>
+    <button onclick="showPage('registerPage')">Créer un compte</button>
+  </div>
+
+  <!-- Page de connexion -->
+  <div id="loginPage" class="page">
+    <h2>Connexion</h2>
+    <input type="text" id="loginUsername" placeholder="Nom d'utilisateur">
+    <input type="password" id="loginPassword" placeholder="Mot de passe">
+    <button onclick="login()">Se connecter</button>
+    <a onclick="showPage('homePage')">Retour à l'accueil</a>
+  </div>
+
+  <!-- Page de création de compte -->
+  <div id="registerPage" class="page">
+    <h2>Créer un compte</h2>
+    <input type="text" id="registerUsername" placeholder="Nom d'utilisateur">
+    <input type="password" id="registerPassword" placeholder="Mot de passe">
+    <button onclick="register()">S'inscrire</button>
+    <a onclick="showPage('homePage')">Retour à l'accueil</a>
+  </div>
+
+  <script>
+    // Animation des étoiles
+    const canvas = document.getElementById("stars");
+    const ctx = canvas.getContext("2d");
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const stars = [];
+    const STAR_COUNT = 200;
+
+    for (let i = 0; i < STAR_COUNT; i++) {
+      stars.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        radius: Math.random() * 1.5 + 0.5,
+        speed: Math.random() * 0.5 + 0.2
+      });
+    }
+
+    function animate() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = "white";
+      for (let star of stars) {
+        ctx.beginPath();
+        ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+        ctx.fill();
+        star.y += star.speed;
+        if (star.y > canvas.height) {
+          star.y = 0;
+          star.x = Math.random() * canvas.width;
+        }
+      }
+      requestAnimationFrame(animate);
+    }
+
+    animate();
+    window.addEventListener("resize", () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    });
+
+    // Navigation entre pages
+    function showPage(pageId) {
+      document.querySelectorAll('.page, .center-text').forEach(p => p.style.display = 'none');
+      document.getElementById(pageId).style.display = 'block';
+    }
+
+    // Simulations de connexion / inscription (sans backend)
+    const users = {}; // stocke les comptes localement pour la session
+    function register() {
+      const username = document.getElementById('registerUsername').value;
+      const password = document.getElementById('registerPassword').value;
+      if (!username || !password) {
+        alert('Veuillez remplir tous les champs');
+        return;
+      }
+      if (users[username]) {
+        alert('Nom d’utilisateur déjà pris');
+      } else {
+        users[username] = password;
+        alert('Compte créé ! Vous pouvez maintenant vous connecter.');
+        showPage('loginPage');
+      }
+    }
+
+    function login() {
+      const username = document.getElementById('loginUsername').value;
+      const password = document.getElementById('loginPassword').value;
+      if (users[username] && users[username] === password) {
+        alert(`Bienvenue, ${username} !`);
+        showPage('homePage');
+      } else {
+        alert('Nom d’utilisateur ou mot de passe incorrect');
+      }
+    }
+
+    // Affiche la page d'accueil par défaut
+    showPage('homePage');
+  </script>
+
+</body>
+</html>
